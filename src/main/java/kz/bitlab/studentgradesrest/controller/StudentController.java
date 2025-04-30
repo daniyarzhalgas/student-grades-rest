@@ -1,5 +1,6 @@
 package kz.bitlab.studentgradesrest.controller;
 
+import kz.bitlab.studentgradesrest.dto.StudentGradeDTO;
 import kz.bitlab.studentgradesrest.dto.StudentWithAverageDTO;
 import kz.bitlab.studentgradesrest.models.Grade;
 import kz.bitlab.studentgradesrest.models.Student;
@@ -43,6 +44,12 @@ public class StudentController {
     public List<StudentWithAverageDTO> getTopStudents() {
         return studentService.getTopStudentsWithAverage(3);
     }
+
+    @GetMapping("/top/{subject}")
+    public List<StudentGradeDTO> getTop3StudentsBySubject(@PathVariable String subject) {
+        return studentService.getTop3StudentsBySubject(subject);
+    }
+
 
 
 }

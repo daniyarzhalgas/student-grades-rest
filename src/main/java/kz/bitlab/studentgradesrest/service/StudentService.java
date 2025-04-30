@@ -1,12 +1,14 @@
 package kz.bitlab.studentgradesrest.service;
 
 import jakarta.annotation.PostConstruct;
+import kz.bitlab.studentgradesrest.dto.StudentGradeDTO;
 import kz.bitlab.studentgradesrest.dto.StudentWithAverageDTO;
 import kz.bitlab.studentgradesrest.models.Grade;
 import kz.bitlab.studentgradesrest.models.Student;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -67,6 +69,8 @@ public class StudentService {
 
     public Student addStudent(Student student) {
         student.setId(nextId++);
+        if (student.getGrades() == null)
+            student.setGrades(new ArrayList<>());
         students.add(student);
         return student;
     }
@@ -114,6 +118,21 @@ public class StudentService {
                 })
                 .sorted((s1, s2) -> Double.compare(s2.getAverageGrade(), s1.getAverageGrade()))
                 .limit(topN)
+                .collect(Collectors.toList());
+    }
+
+    public List<StudentGradeDTO> getTop3StudentsBySubject(String subject) {
+        return students.stream()
+                .map(student -> {
+                    Optional<Grade> gradeOpt = student.getGrades().stream()
+                            .filter(g -> g.getSubject().equalsIgnoreCase(subject))
+                            .findFirst();
+                    return gradeOpt.map(grade -> new StudentGradeDTO(student.getName(), student.getEmail(), grade.getGradeValue()));
+                })
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .sorted((g1, g2) -> Double.compare(g2.getGradeValue(), g1.getGradeValue())) // descending
+                .limit(3)
                 .collect(Collectors.toList());
     }
 
