@@ -10,15 +10,48 @@ public class GradeDTO {
     @NotBlank(message = "Subject is required")
     private String subject;
 
-    @NotNull(message = "Grade value is required")
-    @Min(value = 0, message = "Grade must be at least 0")
-    @Max(value = 100, message = "Grade must be at most 100")
-    private Double gradeValue;
+    @NotNull @Min(0) @Max(100)
+    private Double quiz;
 
-    // Getters and setters
-    public String getSubject() { return subject; }
-    public void setSubject(String subject) { this.subject = subject; }
+    @NotNull @Min(0) @Max(100)
+    private Double midterm1;
 
-    public Double getGradeValue() { return gradeValue; }
-    public void setGradeValue(Double gradeValue) { this.gradeValue = gradeValue; }
+    @NotNull @Min(0) @Max(100)
+    private Double midterm2;
+
+    // Getters and Setters
+    // ...
+
+
+    public String getSubject() {
+        return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+
+    public Double getQuiz() {
+        return quiz;
+    }
+
+    public void setQuiz(Double quiz) {
+        this.quiz = quiz;
+    }
+
+    public Double getMidterm1() {
+        return midterm1;
+    }
+
+    public void setMidterm1(Double midterm1) {
+        this.midterm1 = midterm1;
+    }
+
+    public Double getMidterm2() {
+        return midterm2;
+    }
+
+    public void setMidterm2(Double midterm2) {
+        this.midterm2 = midterm2;
+    }
 }

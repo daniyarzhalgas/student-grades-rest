@@ -2,6 +2,7 @@ package kz.bitlab.studentgradesrest.service;
 
 import jakarta.annotation.PostConstruct;
 import kz.bitlab.studentgradesrest.dto.StudentGradeDTO;
+import kz.bitlab.studentgradesrest.dto.StudentGradeInfoDTO;
 import kz.bitlab.studentgradesrest.dto.StudentWithAverageDTO;
 import kz.bitlab.studentgradesrest.models.Grade;
 import kz.bitlab.studentgradesrest.models.Student;
@@ -21,49 +22,28 @@ public class StudentService {
     @PostConstruct
     public void init() {
         List<Grade> grades1 = new ArrayList<>();
-        grades1.add(new Grade("Math", 90.0));
-        grades1.add(new Grade("Science", 85.5));
-        addStudent(new Student(null, "Alice", "alice@example.com", grades1));
+        grades1.add(new Grade("Mechanics", 85.0, 90.0, 88.0));
+        grades1.add(new Grade("Thermodynamics", 80.0, 85.0, 82.0));
+        grades1.add(new Grade("Optics", 70.0, 55.0, 72.0));
+        addStudent(new Student(null, "Ailana", "ailana@stu.sdu.edu.kz", grades1));
 
         List<Grade> grades2 = new ArrayList<>();
-        grades2.add(new Grade("Math", 75.0));
-        grades2.add(new Grade("Science", 88.0));
-        addStudent(new Student(null, "Bob", "bob@example.com", grades2));
+        grades2.add(new Grade("Mechanics", 70.0, 75.0, 78.0));
+        grades2.add(new Grade("Thermodynamics", 85.0, 88.0, 87.0));
+        grades2.add(new Grade("Optics", 70.0, 55.0, 72.0));
+        addStudent(new Student(null, "Nursaule", "nursaule@stu.sdu.edu.kz", grades2));
 
-        List<Grade> grades3 = List.of(
-                new Grade("Math", 95.0),
-                new Grade("Science", 92.0),
-                new Grade("English", 89.5)
-        );
-        addStudent(new Student(null, "Charlie", "charlie@example.com", grades3));
+        List<Grade> grades3 = new ArrayList<>();
+        grades3.add(new Grade("Mechanics", 70.0, 75.0, 78.0));
+        grades3.add(new Grade("Thermodynamics", 85.0, 88.0, 87.0));
+        grades3.add(new Grade("Optics", 70.0, 55.0, 72.0));
+        addStudent(new Student(null, "Zhaniye", "zhaniye@stu.sdu.edu.kz", grades3));
 
-        List<Grade> grades4 = List.of(
-                new Grade("Math", 60.0),
-                new Grade("Science", 70.0),
-                new Grade("History", 65.0)
-        );
-        addStudent(new Student(null, "David", "david@example.com", grades4));
-
-        List<Grade> grades5 = List.of(
-                new Grade("English", 82.0),
-                new Grade("Science", 78.0),
-                new Grade("Math", 84.0)
-        );
-        addStudent(new Student(null, "Eva", "eva@example.com", grades5));
-
-        List<Grade> grades6 = List.of(
-                new Grade("Math", 98.0),
-                new Grade("Science", 97.5),
-                new Grade("History", 96.0)
-        );
-        addStudent(new Student(null, "Fiona", "fiona@example.com", grades6));
-
-        List<Grade> grades7 = List.of(
-                new Grade("Math", 55.0),
-                new Grade("Science", 58.0),
-                new Grade("English", 60.0)
-        );
-        addStudent(new Student(null, "George", "george@example.com", grades7));
+        List<Grade> grades4 = new ArrayList<>();
+        grades4.add(new Grade("Mechanics", 70.0, 75.0, 78.0));
+        grades4.add(new Grade("Thermodynamics", 85.0, 88.0, 87.0));
+        grades4.add(new Grade("Optics", 70.0, 55.0, 72.0));
+        addStudent(new Student(null, "Dias", "dias@stu.sdu.edu.kz", grades4));
     }
 
 
@@ -92,7 +72,6 @@ public class StudentService {
         student.getGrades().add(newGrade);
     }
 
-
     public List<Grade> getGradesBySubject(String subject) {
         List<Grade> result = new ArrayList<>();
         for (Student student : students) {
@@ -111,7 +90,7 @@ public class StudentService {
                 .filter(s -> !s.getGrades().isEmpty())
                 .map(s -> {
                     double avg = s.getGrades().stream()
-                            .mapToDouble(Grade::getGradeValue)
+                            .mapToDouble(g -> average(g))
                             .average()
                             .orElse(0.0);
                     return new StudentWithAverageDTO(s.getId(), s.getName(), s.getEmail(), avg);
@@ -127,12 +106,38 @@ public class StudentService {
                     Optional<Grade> gradeOpt = student.getGrades().stream()
                             .filter(g -> g.getSubject().equalsIgnoreCase(subject))
                             .findFirst();
-                    return gradeOpt.map(grade -> new StudentGradeDTO(student.getName(), student.getEmail(), grade.getGradeValue()));
+                    return gradeOpt.map(grade -> new StudentGradeDTO(
+                            student.getName(),
+                            student.getEmail(),
+                            average(grade)  // Средняя оценка по предмету
+                    ));
                 })
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .sorted((g1, g2) -> Double.compare(g2.getGradeValue(), g1.getGradeValue())) // descending
+                .sorted((g1, g2) -> Double.compare(g2.getGradeValue(), g1.getGradeValue())) // по убыванию
                 .limit(3)
+                .collect(Collectors.toList());
+    }
+
+
+    private double average(Grade grade) {
+        return (grade.getQuiz() + grade.getMidterm1() + grade.getMidterm2()) / 3.0;
+    }
+
+
+    public List<StudentGradeInfoDTO> getAllGradesBySubject(String subject) {
+        return students.stream()
+                .flatMap(student -> student.getGrades().stream()
+                        .filter(g -> g.getSubject().equalsIgnoreCase(subject))
+                        .map(g -> new StudentGradeInfoDTO(
+                                student.getName(),
+                                student.getEmail(),
+                                g.getSubject(),
+                                g.getQuiz(),
+                                g.getMidterm1(),
+                                g.getMidterm2()
+                        ))
+                )
                 .collect(Collectors.toList());
     }
 

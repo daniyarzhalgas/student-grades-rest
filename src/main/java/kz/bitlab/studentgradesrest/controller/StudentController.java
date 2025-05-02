@@ -1,5 +1,7 @@
 package kz.bitlab.studentgradesrest.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import kz.bitlab.studentgradesrest.dto.CreateStudentDTO;
 import kz.bitlab.studentgradesrest.dto.GradeDTO;
@@ -16,6 +18,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/students")
+@Tag(name = "Students API", description = "Manage students and their grades")
 public class StudentController {
     private final StudentService studentService;
 
@@ -23,44 +26,47 @@ public class StudentController {
         this.studentService = studentService;
     }
 
+    @Operation(summary = "Create new student with optional grades")
     @PostMapping
     public Student createStudent(@RequestBody @Valid CreateStudentDTO dto) {
-        List<Grade> grades;
+        List<Grade> grades = new ArrayList<>();
         if (dto.getGrades() != null) {
             grades = dto.getGrades().stream()
-                    .map(g -> new Grade(g.getSubject(), g.getGradeValue()))
+                    .map(g -> new Grade(g.getSubject(), g.getQuiz(), g.getMidterm1(), g.getMidterm2()))
                     .collect(Collectors.toList());
-        } else {
-            grades = new ArrayList<>();
         }
-
 
         Student student = new Student(null, dto.getName(), dto.getEmail(), grades);
         return studentService.addStudent(student);
     }
 
+    @Operation(summary = "Get all students with their grades")
     @GetMapping
     public List<Student> getAllStudents() {
         return studentService.getAllStudents();
     }
 
+    @Operation(summary = "Get a specific student by ID")
     @GetMapping("/{id}")
     public Student getStudent(@PathVariable Long id) {
         return studentService.getStudentById(id)
                 .orElseThrow(() -> new RuntimeException("Student not found"));
     }
 
+    @Operation(summary = "Add a new grade to an existing student")
     @PutMapping("/{id}/grades")
     public void addGrade(@PathVariable Long id, @RequestBody @Valid GradeDTO dto) {
-        Grade grade = new Grade(dto.getSubject(), dto.getGradeValue());
+        Grade grade = new Grade(dto.getSubject(), dto.getQuiz(), dto.getMidterm1(), dto.getMidterm2());
         studentService.addGradeToStudent(id, grade);
     }
 
+    @Operation(summary = "Get top 3 students by average grade")
     @GetMapping("/top")
     public List<StudentWithAverageDTO> getTopStudents() {
         return studentService.getTopStudentsWithAverage(3);
     }
 
+    @Operation(summary = "Get top 3 students by grade in a specific subject")
     @GetMapping("/top/{subject}")
     public List<StudentGradeDTO> getTop3StudentsBySubject(@PathVariable String subject) {
         return studentService.getTop3StudentsBySubject(subject);

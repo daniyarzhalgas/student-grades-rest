@@ -1,23 +1,39 @@
-package kz.bitlab.studentgradesrest.models;
+package kz.bitlab.studentgradesrest.dto;
 
-public class Grade {
+public class StudentGradeInfoDTO {
+    private String studentName;
+    private String email;
     private String subject;
     private Double quiz;
     private Double midterm1;
     private Double midterm2;
 
-    // Constructors
-    public Grade() {
-    }
-
-    public Grade(String subject, Double quiz, Double midterm1, Double midterm2) {
+    public StudentGradeInfoDTO(String studentName, String email, String subject,
+                               Double quiz, Double midterm1, Double midterm2) {
+        this.studentName = studentName;
+        this.email = email;
         this.subject = subject;
         this.quiz = quiz;
         this.midterm1 = midterm1;
         this.midterm2 = midterm2;
     }
 
-    // Getters and Setters
+    public String getStudentName() {
+        return studentName;
+    }
+
+    public void setStudentName(String studentName) {
+        this.studentName = studentName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public String getSubject() {
         return subject;
     }
@@ -48,10 +64,5 @@ public class Grade {
 
     public void setMidterm2(Double midterm2) {
         this.midterm2 = midterm2;
-    }
-
-    // Optional: average grade
-    public double getAverage() {
-        return (quiz + midterm1 + midterm2) / 3;
     }
 }
